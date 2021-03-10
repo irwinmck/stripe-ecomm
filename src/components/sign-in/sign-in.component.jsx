@@ -1,13 +1,18 @@
 import React, { useState } from 'react'
-
-// Styles
-import './sign-in.styles.scss'
+import { useHistory } from 'react-router-dom'
 
 // Components
 import FormInput from '../form-input/form-input.component'
 import CustomButton from '../custom-button/custom-button.component'
 
+// Utils
+import { auth, signInWithGoogle } from '../../firebase/firebase.utils'
+
+// Styles
+import './sign-in.styles.scss'
+
 const SignIn = () => {
+  let history = useHistory()
   const [user, setUser] = useState({
     email: '',
     password: '',
@@ -19,9 +24,16 @@ const SignIn = () => {
     setUser({ ...user, [name]: value })
   }
 
-  const signIn = e => {
+  const signIn = async e => {
     e.preventDefault()
     console.log('Signing in...')
+
+    try {
+      await auth.signInWithEmailAndPassword(user.email, user.password)
+      history.push('/')
+    } catch (err) {
+      console.error(err)
+    }
   }
 
   return (
@@ -48,7 +60,12 @@ const SignIn = () => {
           required
         />
 
-        <CustomButton type='submit'>Sign In</CustomButton>
+        <div className='buttons'>
+          <CustomButton type='submit'>Sign In</CustomButton>
+          <CustomButton google onClick={signInWithGoogle} type='button'>
+            Sign In With Google
+          </CustomButton>
+        </div>
       </form>
     </div>
   )
